@@ -1,4 +1,4 @@
-# Docker Setup for Koodo Reader Development
+# Docker Setup for Koodo Reader
 
 This document describes how to use Docker to run Koodo Reader for development purposes.
 
@@ -9,66 +9,66 @@ This document describes how to use Docker to run Koodo Reader for development pu
 
 ## Quick Start
 
-We've created a convenience script that handles the entire Docker setup process for you. To use it:
-
 ```bash
-# From the project root directory
 ./start.sh
 ```
 
-This script will:
-1. Stop any existing Koodo Reader container
+The script will automatically:
+1. Stop any existing Koodo Reader containers
 2. Clean up unused Docker resources
-3. Start a new Koodo Reader container with host networking
-4. Provide you with the URL to access the application
+3. Start a new container on port 7070 (with fallback ports if needed)
+4. Verify the container is responding correctly
+5. Display access URLs for both local and remote access
 
-## Manual Setup
+## Port Configuration
 
-If you prefer to run the commands manually:
+The application uses the following port strategy:
+1. Default port: 7070
+2. Fallback ports (in order): 8080, 8081, 9090
 
-```bash
-# Stop and remove any existing container
-docker stop koodo-reader
-docker rm koodo-reader
+## Container Management
 
-# Optionally clean up Docker resources
-docker system prune -f
-
-# Start a new container
-docker run -d --name koodo-reader --network host ghcr.io/koodo-reader/koodo-reader:master
-```
-
-## Access the Application
-
-Once the container is running, you can access Koodo Reader in your browser at:
-
-```
-http://localhost
-```
-
-The actual port may vary based on your system configuration. If port 80 is unavailable, Caddy (the web server used by the Docker image) will automatically choose an available port.
+- **Start**: `./start.sh`
+- **Stop**: `docker stop koodo-reader`
+- **View Logs**: `docker logs koodo-reader`
+- **Restart**: `docker restart koodo-reader`
 
 ## Troubleshooting
 
-### Port Conflicts
+1. **Container not starting**
+   - Check if ports are available
+   - View logs using `docker logs koodo-reader`
+   - Ensure Docker daemon is running
 
-If you see errors related to port binding, it could mean port 80 is already in use on your system. The `--network host` flag allows the container to use the host's network stack, which helps resolve many port-related issues.
+2. **Cannot access application**
+   - Verify the container is running: `docker ps | grep koodo-reader`
+   - Check the port mapping: `docker port koodo-reader`
+   - Test using curl: `curl -I http://localhost:7070`
 
-### Container Not Starting
+3. **Performance issues**
+   - Check container resources: `docker stats koodo-reader`
+   - Verify host system resources: `htop` or `top`
 
-If the container doesn't start, check the logs:
+## Best Practices
 
-```bash
-docker logs koodo-reader
-```
+1. The container is configured to restart automatically on system reboot
+2. Regular Docker cleanup is performed automatically
+3. Health checks ensure the application is responding correctly
+4. Multiple access URLs are provided for flexibility
 
-### Application Not Accessible
+## Security Notes
 
-If you can't access the application in your browser, try:
+1. The container runs on standard HTTP port 80 internally
+2. External access is mapped to a different port for security
+3. Container has automatic restart policy enabled
 
-1. Verifying the container is running with `docker ps | grep koodo`
-2. Checking which port is being used with `docker logs koodo-reader`
-3. Testing connectivity with `curl -I http://localhost`
+## Remote Access
+
+The application will be accessible at:
+- Local: `http://localhost:7070`
+- Remote: `http://<server-ip>:7070`
+
+Remember to configure your firewall rules if accessing remotely.
 
 ## Development Workflow
 
