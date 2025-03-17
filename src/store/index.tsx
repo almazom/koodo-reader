@@ -7,11 +7,15 @@ import { reader } from "./reducers/reader";
 import { viewArea } from "./reducers/viewArea";
 import { sidebar } from "./reducers/sidebar";
 import { backupPage } from "./reducers/backupPage";
+import { llm } from "./reducers/llm";
 import BookModel from "../models/Book";
 import NoteModel from "../models/Note";
 import BookmarkModel from "../models/Bookmark";
 import HtmlBookModel from "../models/HtmlBook";
 import PluginModel from "../models/Plugin";
+import LLMConfig from "../models/LLMConfig";
+import LLMSummary from "../models/LLMSummary";
+
 const rootReducer = combineReducers({
   book,
   manager,
@@ -20,6 +24,7 @@ const rootReducer = combineReducers({
   viewArea,
   sidebar,
   backupPage,
+  llm,
 });
 const store = createStore(
   rootReducer,
@@ -108,5 +113,9 @@ export type stateType = {
     isOpenMenu: boolean;
     isChangeDirection: boolean;
     isShowBookmark: boolean;
+  };
+  llm: {
+    configs: LLMConfig[];
+    summaries: LLMSummary[];
   };
 };

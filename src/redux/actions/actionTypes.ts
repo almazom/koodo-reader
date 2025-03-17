@@ -1,0 +1,6 @@
+// LLM-related actions
+export const ADD_LLM_CONFIG = "ADD_LLM_CONFIG";
+export const DELETE_LLM_CONFIG = "DELETE_LLM_CONFIG";
+export const SET_DEFAULT_LLM_CONFIG = "SET_DEFAULT_LLM_CONFIG";
+export const ADD_LLM_SUMMARY = "ADD_LLM_SUMMARY";
+export const DELETE_LLM_SUMMARY = "DELETE_LLM_SUMMARY"; 
