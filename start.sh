@@ -13,22 +13,23 @@ fi
 echo "🧹 Cleaning up Docker resources..."
 docker system prune -f &>/dev/null
 
-# Start Koodo Reader with host networking
-echo "📚 Starting Koodo Reader container..."
-docker run -d --name koodo-reader --network host ghcr.io/koodo-reader/koodo-reader:master
+# Try to use port 8080, fallback to other ports if unavailable
+PORT=8080
+if netstat -tuln | grep -q ":$PORT"; then
+  PORT=8081
+  if netstat -tuln | grep -q ":$PORT"; then
+    PORT=8082
+  fi
+fi
+
+# Start Koodo Reader with explicit port mapping
+echo "📚 Starting Koodo Reader container on port $PORT..."
+docker run -d --name koodo-reader -p $PORT:80 ghcr.io/koodo-reader/koodo-reader:master
 
 # Get the container ID
 CONTAINER_ID=$(docker ps -q --filter "name=koodo-reader")
 
 if [ -n "$CONTAINER_ID" ]; then
-  # Find the port Koodo is running on
-  PORT=$(docker logs $CONTAINER_ID 2>&1 | grep -o "listening on :.*" | sed 's/listening on ://')
-  
-  if [ -z "$PORT" ]; then
-    # If port not found in logs, use default port 80
-    PORT=80
-  fi
-  
   echo "✅ Koodo Reader is now running!"
   echo "📖 Access it at: http://localhost:$PORT"
   echo ""
