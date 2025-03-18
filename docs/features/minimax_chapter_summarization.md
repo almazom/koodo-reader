@@ -247,6 +247,8 @@ Our architecture supports future expansion to:
 - The architecture will support the "bring your own API key" pattern
 
 ## TODO (Immediate Next Steps)
+- [x] Set up secure API key management
+- [x] Configure sensitive file handling in .gitignore
 - [ ] Set up SQLite database schema
 - [ ] Implement basic LLM service architecture
 - [ ] Create chapter extraction utility
@@ -254,4 +256,6 @@ Our architecture supports future expansion to:
 
 ## Related Documents
 - [Project Progress](/docs/PROGRESS.md)
-- [Development Guidelines](/docs/development/guidelines.md) 
+- [Development Guidelines](/docs/development/guidelines.md)
+- [Implementation Plan](/docs/features/minimax_implementation_plan.md)
+- [Russian Prompt Templates](/docs/features/minimax_default_prompts_ru.md) 
