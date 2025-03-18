@@ -2,6 +2,16 @@
 
 ## Recent Achievements
 
+### DeepSeek-R1 Model Integration Documentation (May 2024)
+- ✅ Created comprehensive documentation for DeepSeek-R1 model integration
+- ✅ Documented API schema with TypeScript interfaces for requests and responses
+- ✅ Added detailed examples of both reasoning_content and content fields usage
+- ✅ Included best practices for temperature settings and token management
+- ✅ Created error handling documentation with common status codes
+- ✅ Added cross-references to related Minimax documentation
+- ✅ Documented multi-language support capabilities (English/Russian)
+- ✅ Created clear TODO list for future improvements
+
 ### TypeScript Minimax API Client and Comprehensive Testing (May 2024)
 - ✅ Implemented robust TypeScript client for Minimax API with proper typing and OOP design
 - ✅ Created comprehensive test suite for both direct API testing and client class
