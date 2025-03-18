@@ -36,3 +36,6 @@ kookit-extra.js
 kookit-extra.mjs
 kookit-extra-browser.js
 kookit-extra-browser.mjs
+
+# LLM API keys - never commit these!
+src/services/llm/config/api-keys.ts

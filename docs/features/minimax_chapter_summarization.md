@@ -209,6 +209,26 @@ interface ChapterSummaryService {
 }
 ```
 
+## API Key Management
+
+For security reasons, LLM API keys are managed through a separate configuration system:
+
+- API keys are stored in `src/services/llm/config/api-keys.ts`
+- This file is excluded from version control via `.gitignore`
+- A template file `api-keys.template.ts` is provided as a reference
+- In development, keys can be directly used in the code
+- In production, keys should be loaded from environment variables or a secure storage service
+
+To set up API keys for development:
+1. Copy `api-keys.template.ts` to `api-keys.ts`
+2. Add your API keys to the appropriate provider in `api-keys.ts`
+3. Never commit `api-keys.ts` to version control
+
+For user-provided API keys, the system includes:
+- UI for entering API keys in the settings panel
+- Secure storage of user-provided keys
+- Validation of API keys before saving
+
 ## Roadmap Considerations
 
 Our architecture supports future expansion to:
