@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Button - Tabbed Modal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .reader-container {
+            position: relative;
+            width: 320px; /* Mobile width */
+            height: 600px; /* Mobile height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .reader-content {
+            height: 100%;
+            overflow-y: auto;
+            line-height: 1.6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .ai-button-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .ai-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4c6ef5;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+        
+        .ai-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(76, 110, 245, 0.4);
+        }
+        
+        /* Modal */
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+        
+        .modal-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #868e96;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .modal-close:hover {
+            background-color: #e9ecef;
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: #868e96;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            color: #4c6ef5;
+            border-bottom-color: #4c6ef5;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-item {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 120px;
+            justify-content: center;
+        }
+        
+        .feature-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-item i {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-item-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .feature-item-desc {
+            font-size: 12px;
+            color: #868e96;
+            text-align: center;
+        }
+        
+        /* Icon colors */
+        .feature-item.summarize i {
+            color: #4263eb;
+        }
+        
+        .feature-item.chat i {
+            color: #ae3ec9;
+        }
+        
+        .feature-item.explain i {
+            color: #f03e3e;
+        }
+        
+        .feature-item.terms i {
+            color: #1c7ed6;
+        }
+        
+        .feature-item.podcast i {
+            color: #40c057;
+        }
+        
+        .feature-item.study i {
+            color: #fcc419;
+        }
+        
+        .feature-item.insights i {
+            color: #fd7e14;
+        }
+        
+        .feature-item.visual i {
+            color: #12b886;
+        }
+        
+        /* Recent Activity Section */
+        .recent-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #495057;
+        }
+        
+        .recent-item {
+            display: flex;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .recent-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .recent-icon {
+            font-size: 18px;
+            margin-right: 12px;
+            color: #4c6ef5;
+            display: flex;
+            align-items: center;
+        }
+        
+        .recent-text {
+            flex: 1;
+        }
+        
+        .recent-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .recent-meta {
+            font-size: 12px;
+            color: #868e96;
+        }
+        
+        /* Settings Content */
+        .settings-section {
+            margin-bottom: 24px;
+        }
+        
+        .settings-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #495057;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+        
+        .settings-option {
+            margin-bottom: 16px;
+        }
+        
+        .settings-label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .settings-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #f8f9fa;
+        }
+        
+        .settings-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ced4da;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #4c6ef5;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(16px);
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-content">
+            <h1>The Republic</h1>
+            <h2>Book I</h2>
+            <p>I went down yesterday to the Piraeus with Glaucon the son of Ariston, that I might offer up my prayers to the goddess; and also because I wanted to see in what manner they would celebrate the festival, which was a new thing. I was delighted with the procession of the inhabitants; but that of the Thracians was equally, if not more, beautiful. When we had finished our prayers and viewed the spectacle, we turned in the direction of the city; and at that instant Polemarchus the son of Cephalus chanced to catch sight of us from a distance as we were starting on our way home, and told his servant to run and bid us wait for him. The servant took hold of me by the cloak behind, and said: Polemarchus desires you to wait.</p>
+            <p>I turned round, and asked him where his master was.</p>
+            <p>There he is, said the youth, coming after you, if you will only wait.</p>
+            <p>Certainly we will, said Glaucon; and in a few minutes Polemarchus appeared, and with him Adeimantus, Glaucon's brother, Niceratus the son of Nicias, and several others who had been at the procession.</p>
+        </div>
+        
+        <div class="ai-button-container">
+            <button class="ai-button" id="ai-button">AI</button>
+        </div>
+        
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="modal-title">AI Reading Assistant</div>
+                <div class="modal-close" id="modal-close">×</div>
+            </div>
+            
+            <div class="tab-nav">
+                <div class="tab-button active" data-tab="features">Features</div>
+                <div class="tab-button" data-tab="recent">Recent</div>
+                <div class="tab-button" data-tab="settings">Settings</div>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Features Tab -->
+                <div class="tab-panel active" id="features-panel">
+                    <div class="section-title">Reading Tools</div>
+                    <div class="feature-grid">
+                        <div class="feature-item summarize" id="summarize">
+                            <i>📝</i>
+                            <div class="feature-item-title">Summarize</div>
+                            <div class="feature-item-desc">Get key points</div>
+                        </div>
+                        <div class="feature-item chat" id="chat">
+                            <i>💬</i>
+                            <div class="feature-item-title">Chat</div>
+                            <div class="feature-item-desc">Ask questions</div>
+                        </div>
+                        <div class="feature-item explain" id="explain">
+                            <i>🔍</i>
+                            <div class="feature-item-title">Explain</div>
+                            <div class="feature-item-desc">Understand ideas</div>
+                        </div>
+                        <div class="feature-item terms" id="terms">
+                            <i>📚</i>
+                            <div class="feature-item-title">Define Terms</div>
+                            <div class="feature-item-desc">Learn vocabulary</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-title">Advanced Tools</div>
+                    <div class="feature-grid">
+                        <div class="feature-item podcast" id="podcast">
+                            <i>🎙️</i>
+                            <div class="feature-item-title">Podcast</div>
+                            <div class="feature-item-desc">Listen to narration</div>
+                        </div>
+                        <div class="feature-item study" id="study">
+                            <i>🧠</i>
+                            <div class="feature-item-title">Study Guide</div>
+                            <div class="feature-item-desc">Create materials</div>
+                        </div>
+                        <div class="feature-item insights" id="insights">
+                            <i>📊</i>
+                            <div class="feature-item-title">Insights</div>
+                            <div class="feature-item-desc">Analytics & themes</div>
+                        </div>
+                        <div class="feature-item visual" id="visual">
+                            <i>🖼️</i>
+                            <div class="feature-item-title">Visualize</div>
+                            <div class="feature-item-desc">Create images</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity Tab -->
+                <div class="tab-panel" id="recent-panel">
+                    <div class="recent-section">
+                        <div class="section-title">Recent Activity</div>
+                        <div class="recent-item">
+                            <div class="recent-icon">📝</div>
+                            <div class="recent-text">
+                                <div class="recent-title">Chapter 1 Summary</div>
+                                <div class="recent-meta">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="recent-item">
+                            <div class="recent-icon">💬</div>
+                            <div class="recent-text">
+                                <div class="recent-title">Chat about justice concept</div>
+                                <div class="recent-meta">Yesterday</div>
+                            </div>
+                        </div>
+                        <div class="recent-item">
+                            <div class="recent-icon">📚</div>
+                            <div class="recent-text">
+                                <div class="recent-title">Term definitions for Chapter 3</div>
+                                <div class="recent-meta">2 days ago</div>
+                            </div>
+                        </div>
+                        <div class="recent-item">
+                            <div class="recent-icon">🔍</div>
+                            <div class="recent-text">
+                                <div class="recent-title">Explanation of the Cave allegory</div>
+                                <div class="recent-meta">3 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div class="tab-panel" id="settings-panel">
+                    <div class="settings-section">
+                        <div class="settings-title">AI Settings</div>
+                        <div class="settings-option">
+                            <label class="settings-label" for="model-select">AI Model</label>
+                            <select class="settings-select" id="model-select">
+                                <option value="gpt4">DeepSeek R1</option>
+                                <option value="gpt35">DeepSeek v3</option>
+                                <option value="claude">Gwen 2.5 max</option>
+                                <option value="local">Minimax</option>
+                                <option value="local">Gemini Flash 2.0</option>
+                            </select>
+                        </div>
+                        <div class="settings-option">
+                            <label class="settings-label" for="lang-select">Response Language</label>
+                            <select class="settings-select" id="lang-select">
+                                <option value="en">English</option>
+                                <option value="ru">Russian</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-title">User Preferences</div>
+                        <div class="settings-toggle">
+                            <span>Auto-suggest AI features</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle">
+                            <span>Save summaries to notes</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle">
+                            <span>Use markdown formatting</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const aiButton = document.getElementById('ai-button');
+        const modal = document.getElementById('modal');
+        const modalClose = document.getElementById('modal-close');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        
+        // Open modal
+        aiButton.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+        
+        // Close modal
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+        
+        // Tab switching
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Deactivate all tabs
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+                
+                // Activate selected tab
+                const tabId = button.getAttribute('data-tab');
+                button.classList.add('active');
+                document.getElementById(`${tabId}-panel`).classList.add('active');
+            });
+        });
+        
+        // Feature clicks
+        const featureItems = document.querySelectorAll('.feature-item');
+        featureItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const featureId = item.id;
+                alert(`${featureId.charAt(0).toUpperCase() + featureId.slice(1)} feature clicked`);
+                modal.classList.remove('active');
+            });
+        });
+        
+        // Recent item clicks
+        const recentItems = document.querySelectorAll('.recent-item');
+        recentItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const title = item.querySelector('.recent-title').textContent;
+                alert(`Opening: ${title}`);
+            });
+        });
+        
+        // Swipe down to close modal
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        const modalHeader = document.querySelector('.modal-header');
+        modalHeader.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+        
+        modalHeader.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].screenY;
+            if (touchEndY - touchStartY > 70) {
+                // Swiped down significantly
+                modal.classList.remove('active');
+            }
+        }, false);
+    </script>
+</body>
+</html> 

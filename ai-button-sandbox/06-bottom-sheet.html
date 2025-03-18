@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Button - Bottom Sheet</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .reader-container {
+            position: relative;
+            width: 320px; /* Mobile width */
+            height: 600px; /* Mobile height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .reader-content {
+            height: 100%;
+            overflow-y: auto;
+            line-height: 1.6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .ai-button-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .ai-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4c6ef5;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+        
+        .ai-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(76, 110, 245, 0.4);
+        }
+        
+        /* Bottom Sheet */
+        .bottom-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+        
+        .sheet-handle {
+            width: 40px;
+            height: 5px;
+            background-color: #dee2e6;
+            border-radius: 2.5px;
+            margin: 10px auto;
+        }
+        
+        .sheet-content {
+            padding: 0 16px 20px;
+        }
+        
+        /* Menu Items */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f3f5;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .menu-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 16px;
+            font-size: 20px;
+        }
+        
+        .menu-item-text {
+            flex: 1;
+        }
+        
+        .menu-item-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .menu-item-desc {
+            font-size: 13px;
+            color: #868e96;
+        }
+        
+        /* Icon colors */
+        .menu-item-icon.summarize {
+            background-color: rgba(66, 99, 235, 0.1);
+            color: #4263eb;
+        }
+        
+        .menu-item-icon.chat {
+            background-color: rgba(174, 62, 201, 0.1);
+            color: #ae3ec9;
+        }
+        
+        .menu-item-icon.explain {
+            background-color: rgba(240, 62, 62, 0.1);
+            color: #f03e3e;
+        }
+        
+        .menu-item-icon.terms {
+            background-color: rgba(28, 126, 214, 0.1);
+            color: #1c7ed6;
+        }
+        
+        /* Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-content">
+            <h1>The Republic</h1>
+            <h2>Book I</h2>
+            <p>I went down yesterday to the Piraeus with Glaucon the son of Ariston, that I might offer up my prayers to the goddess; and also because I wanted to see in what manner they would celebrate the festival, which was a new thing. I was delighted with the procession of the inhabitants; but that of the Thracians was equally, if not more, beautiful. When we had finished our prayers and viewed the spectacle, we turned in the direction of the city; and at that instant Polemarchus the son of Cephalus chanced to catch sight of us from a distance as we were starting on our way home, and told his servant to run and bid us wait for him. The servant took hold of me by the cloak behind, and said: Polemarchus desires you to wait.</p>
+            <p>I turned round, and asked him where his master was.</p>
+            <p>There he is, said the youth, coming after you, if you will only wait.</p>
+            <p>Certainly we will, said Glaucon; and in a few minutes Polemarchus appeared, and with him Adeimantus, Glaucon's brother, Niceratus the son of Nicias, and several others who had been at the procession.</p>
+        </div>
+        
+        <div class="ai-button-container">
+            <button class="ai-button" id="ai-button">AI</button>
+        </div>
+        
+        <div class="overlay" id="overlay"></div>
+        
+        <div class="bottom-sheet" id="bottom-sheet">
+            <div class="sheet-handle" id="sheet-handle"></div>
+            <div class="sheet-content">
+                <div class="menu-item" id="summarize">
+                    <div class="menu-item-icon summarize">📝</div>
+                    <div class="menu-item-text">
+                        <div class="menu-item-title">Summarize Chapter</div>
+                        <div class="menu-item-desc">Get a concise summary of the current chapter</div>
+                    </div>
+                </div>
+                
+                <div class="menu-item" id="chat">
+                    <div class="menu-item-icon chat">💬</div>
+                    <div class="menu-item-text">
+                        <div class="menu-item-title">Chat about Chapter</div>
+                        <div class="menu-item-desc">Ask questions and discuss the chapter content</div>
+                    </div>
+                </div>
+                
+                <div class="menu-item" id="explain">
+                    <div class="menu-item-icon explain">🔍</div>
+                    <div class="menu-item-text">
+                        <div class="menu-item-title">Explain Concepts</div>
+                        <div class="menu-item-desc">Get explanations for complex ideas and themes</div>
+                    </div>
+                </div>
+                
+                <div class="menu-item" id="terms">
+                    <div class="menu-item-icon terms">📚</div>
+                    <div class="menu-item-text">
+                        <div class="menu-item-title">Terms Explanation</div>
+                        <div class="menu-item-desc">Define difficult or unknown terms in the text</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const aiButton = document.getElementById('ai-button');
+        const bottomSheet = document.getElementById('bottom-sheet');
+        const overlay = document.getElementById('overlay');
+        const sheetHandle = document.getElementById('sheet-handle');
+        
+        // Menu items
+        const summarizeItem = document.getElementById('summarize');
+        const chatItem = document.getElementById('chat');
+        const explainItem = document.getElementById('explain');
+        const termsItem = document.getElementById('terms');
+        
+        // Open bottom sheet
+        aiButton.addEventListener('click', () => {
+            bottomSheet.classList.add('active');
+            overlay.classList.add('active');
+        });
+        
+        // Close bottom sheet by clicking overlay
+        overlay.addEventListener('click', () => {
+            bottomSheet.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        // Handle menu item clicks
+        summarizeItem.addEventListener('click', () => {
+            alert('Summarize Chapter clicked');
+            bottomSheet.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        chatItem.addEventListener('click', () => {
+            alert('Chat about Chapter clicked');
+            bottomSheet.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        explainItem.addEventListener('click', () => {
+            alert('Explain Concepts clicked');
+            bottomSheet.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        termsItem.addEventListener('click', () => {
+            alert('Terms Explanation clicked');
+            bottomSheet.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        // Swipe down to close - touch events
+        let touchStartY = 0;
+        let touchMoveY = 0;
+        
+        bottomSheet.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        bottomSheet.addEventListener('touchmove', (e) => {
+            touchMoveY = e.touches[0].clientY;
+            const diff = touchMoveY - touchStartY;
+            
+            // Only allow swipe down, not up
+            if (diff > 0) {
+                bottomSheet.style.transform = `translateY(${diff}px)`;
+            }
+        });
+        
+        bottomSheet.addEventListener('touchend', () => {
+            const diff = touchMoveY - touchStartY;
+            
+            // If swiped down more than 100px, close the sheet
+            if (diff > 100) {
+                bottomSheet.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+            
+            // Reset transform
+            bottomSheet.style.transform = '';
+        });
+    </script>
+</body>
+</html> 

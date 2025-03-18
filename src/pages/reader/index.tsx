@@ -8,6 +8,7 @@ import {
   handleMenuMode,
   handleOriginalText,
   handleOpenMenu,
+  handleAIDrawerOpen,
 } from "../../store/actions";
 import { connect } from "react-redux";
 import { stateType } from "../../store";
@@ -17,11 +18,14 @@ import { withTranslation } from "react-i18next";
 const mapStateToProps = (state: stateType) => {
   return {
     currentBook: state.book.currentBook,
-    percentage: state.progressPanel.percentage,
+    bookmarks: state.reader.bookmarks,
+    chapters: state.reader.chapters,
     htmlBook: state.reader.htmlBook,
+    percentage: state.progressPanel.percentage,
     readerMode: state.reader.readerMode,
     isNavLocked: state.reader.isNavLocked,
-    isSearch: state.manager.isSearch,
+    isSearch: state.book.isSearch,
+    isAIDrawerOpen: state.reader.isAIDrawerOpen,
   };
 };
 const actionCreator = {
@@ -34,6 +38,7 @@ const actionCreator = {
   handleMenuMode,
   handleOriginalText,
   handleOpenMenu,
+  handleOpenAIDrawer: handleAIDrawerOpen,
 };
 export default connect(
   mapStateToProps,

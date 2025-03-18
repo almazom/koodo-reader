@@ -12,6 +12,8 @@ import "./index.css";
 import Book from "../../models/Book";
 import DatabaseService from "../../utils/storage/databaseService";
 import BookUtil from "../../utils/file/bookUtil";
+import AIButton from "../../components/aiButton";
+import AIPanel from "../../containers/panels/aiPanel";
 
 let lock = false; //prevent from clicking too fasts
 let throttleTime =
@@ -149,14 +151,10 @@ class Reader extends React.Component<ReaderProps, ReaderState> {
     const renditionProps = {
       handleLeaveReader: this.handleLeaveReader,
       handleEnterReader: this.handleEnterReader,
-      isShow:
-        this.state.isOpenLeftPanel ||
-        this.state.isOpenTopPanel ||
-        this.state.isOpenBottomPanel ||
-        this.state.isOpenRightPanel,
+      handleLocation: this.handleLocation,
     };
     return (
-      <div className="viewer">
+      <div className="view-area">
         <Tooltip id="my-tooltip" style={{ zIndex: 25 }} />
         {ConfigService.getReaderConfig("isHidePageButton") !== "yes" && (
           <>
@@ -186,24 +184,6 @@ class Reader extends React.Component<ReaderProps, ReaderState> {
               }}
             >
               <span className="icon-dropdown next-chapter-single"></span>
-            </div>
-            <div
-              className="next-chapter-single-container"
-              onClick={async () => {
-                this.props.handleMenuMode("assistant");
-                this.props.handleOriginalText(
-                  this.props.htmlBook.rendition.chapterText()
-                );
-                this.props.handleOpenMenu(true);
-              }}
-              style={{
-                right: "70px",
-                transform: "rotate(0deg)",
-                fontWeight: "bold",
-                fontSize: "17px",
-              }}
-            >
-              AI
             </div>
           </>
         )}
@@ -490,6 +470,32 @@ class Reader extends React.Component<ReaderProps, ReaderState> {
             <OperationPanel {...{ time: this.state.time }} />
           )}
         </div>
+
+        {/* AI Panel Overlay */}
+        {this.props.isAIDrawerOpen && (
+          <div 
+            className="ai-panel-overlay" 
+            onClick={() => this.props.handleOpenAIDrawer(false)}
+          />
+        )}
+
+        {/* AI Panel */}
+        <div
+          className="ai-panel-container"
+          style={
+            this.props.isAIDrawerOpen
+              ? { marginLeft: this.props.isNavLocked ? 150 : 0 }
+              : {
+                  transform: "translateX(309px)",
+                  marginLeft: this.props.isNavLocked ? 150 : 0,
+                }
+          }
+        >
+          <AIPanel />
+        </div>
+        
+        {/* AI Button */}
+        <AIButton />
 
         {this.props.currentBook.key && <Viewer {...renditionProps} />}
       </div>
