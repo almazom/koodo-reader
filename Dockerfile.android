@@ -1,0 +1,64 @@
+FROM debian:bullseye-slim
+
+# Install required dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    nodejs \
+    npm \
+    gradle \
+    openjdk-17-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Android SDK
+ENV ANDROID_HOME /opt/android-sdk
+ENV PATH ${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/31.0.0
+
+# Download and install Android SDK
+RUN mkdir -p ${ANDROID_HOME} && \
+    cd ${ANDROID_HOME} && \
+    curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
+    unzip cmdline-tools.zip && \
+    rm cmdline-tools.zip && \
+    mkdir -p ${ANDROID_HOME}/cmdline-tools/latest && \
+    mv cmdline-tools/* ${ANDROID_HOME}/cmdline-tools/latest/ && \
+    rm -rf cmdline-tools/
+
+# Accept licenses and install required packages
+RUN mkdir -p ${ANDROID_HOME}/licenses && \
+    echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ${ANDROID_HOME}/licenses/android-sdk-license && \
+    echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > ${ANDROID_HOME}/licenses/android-sdk-platform-tools-preview-license && \
+    echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ${ANDROID_HOME}/licenses/android-sdk-preview-license && \
+    sdkmanager --update && \
+    sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+
+# Working directory
+WORKDIR /app
+
+# Copy package.json and install dependencies
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Copy the rest of the application
+COPY . .
+
+# Build the web app
+RUN npm run build
+
+# Install Capacitor dependencies
+RUN npm install -g @capacitor/cli && \
+    npm install @capacitor/core @capacitor/android
+
+# Add Android platform and build APK
+RUN npx cap add android && \
+    npx cap sync android && \
+    cd android && \
+    ./gradlew assembleDebug
+
+# Set the output directory
+VOLUME /output
+
+# CMD to copy the generated APK to the output volume
+CMD cp android/app/build/outputs/apk/debug/app-debug.apk /output/koodo-reader.apk && \
+    echo "APK built successfully: /output/koodo-reader.apk" 
