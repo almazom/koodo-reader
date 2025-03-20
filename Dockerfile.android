@@ -5,11 +5,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     unzip \
-    nodejs \
-    npm \
     gradle \
     openjdk-17-jdk \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20.x and pin npm version
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@8.19.4
 
 # Set up Android SDK
 ENV ANDROID_HOME /opt/android-sdk
@@ -17,21 +20,26 @@ ENV PATH ${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platfo
 
 # Download and install Android SDK
 RUN mkdir -p ${ANDROID_HOME} && \
-    cd ${ANDROID_HOME} && \
+    mkdir -p /tmp/android && \
+    cd /tmp/android && \
     curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
-    unzip cmdline-tools.zip && \
-    rm cmdline-tools.zip && \
+    unzip -q cmdline-tools.zip && \
     mkdir -p ${ANDROID_HOME}/cmdline-tools/latest && \
-    mv cmdline-tools/* ${ANDROID_HOME}/cmdline-tools/latest/ && \
-    rm -rf cmdline-tools/
+    cd cmdline-tools && \
+    cp -r ./bin ${ANDROID_HOME}/cmdline-tools/latest/ && \
+    cp -r ./lib ${ANDROID_HOME}/cmdline-tools/latest/ && \
+    cp -r ./source.properties ${ANDROID_HOME}/cmdline-tools/latest/ && \
+    cp -r ./NOTICE.txt ${ANDROID_HOME}/cmdline-tools/latest/ && \
+    cd /tmp && \
+    rm -rf /tmp/android
 
 # Accept licenses and install required packages
 RUN mkdir -p ${ANDROID_HOME}/licenses && \
     echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ${ANDROID_HOME}/licenses/android-sdk-license && \
     echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > ${ANDROID_HOME}/licenses/android-sdk-platform-tools-preview-license && \
     echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ${ANDROID_HOME}/licenses/android-sdk-preview-license && \
-    sdkmanager --update && \
-    sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+    ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --update && \
+    ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
 # Working directory
 WORKDIR /app

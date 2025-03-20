@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  koodo:
+    build: .
+    # Container name removed to support scaling
+    ports:
+      - "${KOODO_PORT:-7070}:80"
+    restart: unless-stopped
+    # Added resource constraints
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    # Added health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    # Added logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Added volumes for data persistence
+    volumes:
+      - koodo_data:/app/data
+    # Using env file for environment variables
+    env_file:
+      - .env.docker
+    # Added networks
+    networks:
+      - koodo_network
+
+# Define named volumes
+volumes:
+  koodo_data:
+    driver: local
+
+# Define custom networks
+networks:
+  koodo_network:
+    driver: bridge
+
+# Add a .env.docker file with default values
+# PORT=7070
+# NODE_ENV=production 
