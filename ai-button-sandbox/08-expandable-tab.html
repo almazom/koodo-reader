@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Button - Expandable Tab</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .reader-container {
+            position: relative;
+            width: 320px; /* Mobile width */
+            height: 600px; /* Mobile height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .reader-content {
+            height: 100%;
+            overflow-y: auto;
+            line-height: 1.6;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-bottom: 100px; /* Space for the tab */
+        }
+        
+        /* AI Tab */
+        .ai-tab {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #4c6ef5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .ai-tab.expanded {
+            height: 250px;
+        }
+        
+        .ai-tab-handle {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            width: 60px;
+            height: 30px;
+            background-color: #4c6ef5;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-tab-handle-icon {
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .ai-tab-handle-arrow {
+            position: absolute;
+            top: 12px;
+            color: white;
+            font-size: 14px;
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+        }
+        
+        .ai-tab.expanded .ai-tab-handle-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .ai-tab-collapsed-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            padding: 0 20px;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .ai-tab.expanded .ai-tab-collapsed-content {
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            padding: 0;
+        }
+        
+        .ai-quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .ai-quick-action:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .ai-quick-action i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .ai-quick-action span {
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        /* Expanded content */
+        .ai-tab-expanded-content {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            color: white;
+        }
+        
+        .ai-tab.expanded .ai-tab-expanded-content {
+            display: flex;
+        }
+        
+        .ai-tab-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .ai-feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .ai-feature {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .ai-feature:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .ai-feature i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .ai-feature-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .ai-feature-desc {
+            font-size: 12px;
+            opacity: 0.8;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-content">
+            <h1>The Republic</h1>
+            <h2>Book I</h2>
+            <p>I went down yesterday to the Piraeus with Glaucon the son of Ariston, that I might offer up my prayers to the goddess; and also because I wanted to see in what manner they would celebrate the festival, which was a new thing. I was delighted with the procession of the inhabitants; but that of the Thracians was equally, if not more, beautiful. When we had finished our prayers and viewed the spectacle, we turned in the direction of the city; and at that instant Polemarchus the son of Cephalus chanced to catch sight of us from a distance as we were starting on our way home, and told his servant to run and bid us wait for him. The servant took hold of me by the cloak behind, and said: Polemarchus desires you to wait.</p>
+            <p>I turned round, and asked him where his master was.</p>
+            <p>There he is, said the youth, coming after you, if you will only wait.</p>
+            <p>Certainly we will, said Glaucon; and in a few minutes Polemarchus appeared, and with him Adeimantus, Glaucon's brother, Niceratus the son of Nicias, and several others who had been at the procession.</p>
+        </div>
+        
+        <div class="ai-tab" id="ai-tab">
+            <div class="ai-tab-handle" id="ai-tab-handle">
+                <div class="ai-tab-handle-icon">AI</div>
+                <div class="ai-tab-handle-arrow">▲</div>
+            </div>
+            
+            <div class="ai-tab-collapsed-content">
+                <div class="ai-quick-action" id="quick-summarize">
+                    <i>📝</i>
+                    <span>Summarize</span>
+                </div>
+                <div class="ai-quick-action" id="quick-chat">
+                    <i>💬</i>
+                    <span>Chat</span>
+                </div>
+                <div class="ai-quick-action" id="quick-explain">
+                    <i>🔍</i>
+                    <span>Explain</span>
+                </div>
+                <div class="ai-quick-action" id="quick-terms">
+                    <i>📚</i>
+                    <span>Terms</span>
+                </div>
+            </div>
+            
+            <div class="ai-tab-expanded-content">
+                <div class="ai-tab-title">AI Reading Assistant</div>
+                <div class="ai-feature-grid">
+                    <div class="ai-feature" id="feature-summarize">
+                        <i>📝</i>
+                        <div class="ai-feature-title">Summarize Chapter</div>
+                        <div class="ai-feature-desc">Get key points only</div>
+                    </div>
+                    <div class="ai-feature" id="feature-chat">
+                        <i>💬</i>
+                        <div class="ai-feature-title">Chat about Chapter</div>
+                        <div class="ai-feature-desc">Ask questions</div>
+                    </div>
+                    <div class="ai-feature" id="feature-explain">
+                        <i>🔍</i>
+                        <div class="ai-feature-title">Explain Concepts</div>
+                        <div class="ai-feature-desc">Understand ideas</div>
+                    </div>
+                    <div class="ai-feature" id="feature-terms">
+                        <i>📚</i>
+                        <div class="ai-feature-title">Define Terms</div>
+                        <div class="ai-feature-desc">Learn difficult words</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const aiTab = document.getElementById('ai-tab');
+        const aiTabHandle = document.getElementById('ai-tab-handle');
+        
+        // Toggle expanded state
+        aiTabHandle.addEventListener('click', () => {
+            aiTab.classList.toggle('expanded');
+        });
+        
+        // Quick actions
+        document.getElementById('quick-summarize').addEventListener('click', () => {
+            alert('Quick Summarize clicked');
+        });
+        
+        document.getElementById('quick-chat').addEventListener('click', () => {
+            alert('Quick Chat clicked');
+        });
+        
+        document.getElementById('quick-explain').addEventListener('click', () => {
+            alert('Quick Explain clicked');
+        });
+        
+        document.getElementById('quick-terms').addEventListener('click', () => {
+            alert('Quick Terms clicked');
+        });
+        
+        // Expanded features
+        document.getElementById('feature-summarize').addEventListener('click', () => {
+            alert('Summarize Chapter clicked');
+            aiTab.classList.remove('expanded');
+        });
+        
+        document.getElementById('feature-chat').addEventListener('click', () => {
+            alert('Chat about Chapter clicked');
+            aiTab.classList.remove('expanded');
+        });
+        
+        document.getElementById('feature-explain').addEventListener('click', () => {
+            alert('Explain Concepts clicked');
+            aiTab.classList.remove('expanded');
+        });
+        
+        document.getElementById('feature-terms').addEventListener('click', () => {
+            alert('Define Terms clicked');
+            aiTab.classList.remove('expanded');
+        });
+    </script>
+</body>
+</html>

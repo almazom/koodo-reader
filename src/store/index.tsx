@@ -96,6 +96,7 @@ export type stateType = {
     currentChapterIndex: number;
     originalText: string;
     htmlBook: HtmlBookModel;
+    isAIDrawerOpen: boolean;
   };
   sidebar: {
     mode: string;

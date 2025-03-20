@@ -17,6 +17,8 @@ export interface ReaderProps {
   handleFetchBookmarks: () => void;
   handleFetchPercentage: (currentBook: BookModel) => void;
   handleReadingBook: (book: BookModel) => void;
+  isAIDrawerOpen: boolean;
+  handleOpenAIDrawer: (isOpen: boolean) => void;
 }
 
 export interface ReaderState {

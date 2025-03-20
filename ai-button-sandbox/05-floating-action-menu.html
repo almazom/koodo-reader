@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Button - Floating Action Menu</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .reader-container {
+            position: relative;
+            width: 320px; /* Mobile width */
+            height: 600px; /* Mobile height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .reader-content {
+            height: 100%;
+            overflow-y: auto;
+            line-height: 1.6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        /* FAB Container */
+        .fab-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        /* Main FAB Button */
+        .fab-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #4c6ef5;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+        
+        .fab-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(76, 110, 245, 0.4);
+        }
+        
+        /* Mini FABs */
+        .fab-actions {
+            position: absolute;
+            bottom: 72px;
+            right: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .fab-actions.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .fab-action {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .fab-actions.active .fab-action {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Set different delays for each button to create a cascade effect */
+        .fab-actions.active .fab-action:nth-child(1) {
+            transition-delay: 0.05s;
+        }
+        
+        .fab-actions.active .fab-action:nth-child(2) {
+            transition-delay: 0.1s;
+        }
+        
+        .fab-actions.active .fab-action:nth-child(3) {
+            transition-delay: 0.15s;
+        }
+        
+        .fab-actions.active .fab-action:nth-child(4) {
+            transition-delay: 0.2s;
+        }
+        
+        .fab-action-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+            outline: none;
+            margin-left: 8px;
+        }
+        
+        .fab-action-label {
+            background-color: #495057;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            margin-right: 12px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(10px);
+        }
+        
+        .fab-action:hover .fab-action-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Button colors */
+        .fab-action-button.summarize {
+            background-color: #4263eb;
+        }
+        
+        .fab-action-button.chat {
+            background-color: #ae3ec9;
+        }
+        
+        .fab-action-button.explain {
+            background-color: #f03e3e;
+        }
+        
+        .fab-action-button.terms {
+            background-color: #1c7ed6;
+        }
+        
+        /* Overlay for backdrop */
+        .fab-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        
+        .fab-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Rotate the main button when active */
+        .fab-button.active {
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-content">
+            <h1>The Republic</h1>
+            <h2>Book I</h2>
+            <p>I went down yesterday to the Piraeus with Glaucon the son of Ariston, that I might offer up my prayers to the goddess; and also because I wanted to see in what manner they would celebrate the festival, which was a new thing. I was delighted with the procession of the inhabitants; but that of the Thracians was equally, if not more, beautiful. When we had finished our prayers and viewed the spectacle, we turned in the direction of the city; and at that instant Polemarchus the son of Cephalus chanced to catch sight of us from a distance as we were starting on our way home, and told his servant to run and bid us wait for him. The servant took hold of me by the cloak behind, and said: Polemarchus desires you to wait.</p>
+            <p>I turned round, and asked him where his master was.</p>
+            <p>There he is, said the youth, coming after you, if you will only wait.</p>
+            <p>Certainly we will, said Glaucon; and in a few minutes Polemarchus appeared, and with him Adeimantus, Glaucon's brother, Niceratus the son of Nicias, and several others who had been at the procession.</p>
+        </div>
+        
+        <div class="fab-overlay" id="fab-overlay"></div>
+        
+        <div class="fab-container">
+            <div class="fab-actions" id="fab-actions">
+                <div class="fab-action">
+                    <div class="fab-action-label">Summarize Chapter</div>
+                    <button class="fab-action-button summarize">📝</button>
+                </div>
+                <div class="fab-action">
+                    <div class="fab-action-label">Chat about Chapter</div>
+                    <button class="fab-action-button chat">💬</button>
+                </div>
+                <div class="fab-action">
+                    <div class="fab-action-label">Explain Concepts</div>
+                    <button class="fab-action-button explain">🔍</button>
+                </div>
+                <div class="fab-action">
+                    <div class="fab-action-label">Terms Explanation</div>
+                    <button class="fab-action-button terms">📚</button>
+                </div>
+            </div>
+            <button class="fab-button" id="fab-button">AI</button>
+        </div>
+    </div>
+
+    <script>
+        const fabButton = document.getElementById('fab-button');
+        const fabActions = document.getElementById('fab-actions');
+        const fabOverlay = document.getElementById('fab-overlay');
+        const actionButtons = document.querySelectorAll('.fab-action-button');
+        
+        // Toggle FAB menu
+        fabButton.addEventListener('click', () => {
+            fabButton.classList.toggle('active');
+            fabActions.classList.toggle('active');
+            fabOverlay.classList.toggle('active');
+        });
+        
+        // Close FAB menu when clicking outside
+        fabOverlay.addEventListener('click', () => {
+            fabButton.classList.remove('active');
+            fabActions.classList.remove('active');
+            fabOverlay.classList.remove('active');
+        });
+        
+        // Handle action button clicks
+        actionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.classList.contains('summarize')) {
+                    alert('Summarize Chapter clicked');
+                } else if (button.classList.contains('chat')) {
+                    alert('Chat about Chapter clicked');
+                } else if (button.classList.contains('explain')) {
+                    alert('Explain Concepts clicked');
+                } else if (button.classList.contains('terms')) {
+                    alert('Terms Explanation clicked');
+                }
+                
+                // Close FAB menu after selection
+                fabButton.classList.remove('active');
+                fabActions.classList.remove('active');
+                fabOverlay.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html> 

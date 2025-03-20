@@ -10,7 +10,7 @@ import BackupDialog from "../../components/dialogs/backupDialog";
 import { ManagerProps, ManagerState } from "./interface";
 import { Trans } from "react-i18next";
 import SettingDialog from "../../components/dialogs/settingDialog";
-import { isMobile } from "react-device-detect";
+import { isMobile, isElectron } from "react-device-detect";
 import { Route, Switch, Redirect } from "react-router-dom";
 import { routes } from "../../router/routes";
 import Arrow from "../../components/arrow";
@@ -22,6 +22,8 @@ import { Tooltip } from "react-tooltip";
 import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 import emptyDark from "../../assets/images/empty-dark.svg";
 import emptyLight from "../../assets/images/empty-light.svg";
+import PwaPrompt from "../../components/pwa/PwaPrompt";
+
 class Manager extends React.Component<ManagerProps, ManagerState> {
   timer!: NodeJS.Timeout;
   constructor(props: ManagerProps) {
@@ -182,6 +184,7 @@ class Manager extends React.Component<ManagerProps, ManagerState> {
         {this.props.isOpenFeedbackDialog && <FeedbackDialog />}{" "}
         {this.props.isSettingOpen && <SettingDialog />}
         {this.props.isDetailDialog && <DetailDialog />}
+        {!isElectron && <PwaPrompt />}
         {(!books || books.length === 0) && this.state.totalBooks ? (
           <Redirect to="/manager/loading" />
         ) : (

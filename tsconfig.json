@@ -16,6 +16,7 @@
     "noEmit": true,
     "jsx": "react",
     "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true

@@ -1,0 +1,132 @@
+.ai-panel-parent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.ai-panel-title {
+  width: 100%;
+  font-size: 16px;
+  margin: 15px 0px 5px 25px;
+  font-weight: 500;
+}
+
+.ai-panel-close {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-size: 22px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: 0.2s;
+}
+
+.ai-panel-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.ai-panel-section {
+  margin-bottom: 24px;
+  padding: 0 20px;
+}
+
+.ai-panel-section-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 8px;
+}
+
+.ai-panel-option {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-panel-option:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.ai-panel-option:active {
+  transform: translateY(0);
+}
+
+.ai-panel-option-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.ai-panel-option-text {
+  flex: 1;
+}
+
+.ai-panel-option-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.ai-panel-option-desc {
+  font-size: 13px;
+  color: #868e96;
+}
+
+/* Icon colors */
+.ai-panel-option-icon.summarize {
+  background-color: rgba(66, 99, 235, 0.1);
+  color: #4263eb;
+}
+
+.ai-panel-option-icon.chat {
+  background-color: rgba(174, 62, 201, 0.1);
+  color: #ae3ec9;
+}
+
+.ai-panel-option-icon.explain {
+  background-color: rgba(240, 62, 62, 0.1);
+  color: #f03e3e;
+}
+
+.ai-panel-option-icon.terms {
+  background-color: rgba(28, 126, 214, 0.1);
+  color: #1c7ed6;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .ai-panel-option {
+    padding: 10px;
+  }
+  
+  .ai-panel-option-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .ai-panel-option-title {
+    font-size: 14px;
+  }
+  
+  .ai-panel-option-desc {
+    font-size: 12px;
+  }
+} 

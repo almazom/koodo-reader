@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Button - Mini Chat</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .reader-container {
+            position: relative;
+            width: 320px; /* Mobile width */
+            height: 600px; /* Mobile height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .reader-content {
+            height: 100%;
+            overflow-y: auto;
+            line-height: 1.6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .ai-button-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .ai-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4c6ef5;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+        
+        .ai-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(76, 110, 245, 0.4);
+        }
+        
+        /* Chat Interface */
+        .chat-container {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            width: 280px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transform-origin: bottom right;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        .chat-container.active {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .chat-header {
+            background-color: #4c6ef5;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .chat-close {
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .chat-actions {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .chat-action {
+            padding: 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f5;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-action:last-child {
+            border-bottom: none;
+        }
+        
+        .chat-action:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .chat-action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .chat-action-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        /* Icon colors */
+        .chat-action-icon.summarize {
+            background-color: rgba(66, 99, 235, 0.1);
+            color: #4263eb;
+        }
+        
+        .chat-action-icon.chat {
+            background-color: rgba(174, 62, 201, 0.1);
+            color: #ae3ec9;
+        }
+        
+        .chat-action-icon.explain {
+            background-color: rgba(240, 62, 62, 0.1);
+            color: #f03e3e;
+        }
+        
+        .chat-action-icon.terms {
+            background-color: rgba(28, 126, 214, 0.1);
+            color: #1c7ed6;
+        }
+        
+        /* Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Message Bubble */
+        .chat-bubble {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            max-width: 250px;
+            background-color: #4c6ef5;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(76, 110, 245, 0.3);
+            transform: scale(0);
+            opacity: 0;
+            transform-origin: bottom right;
+            transition: all 0.3s ease;
+            z-index: 997;
+        }
+        
+        .chat-bubble.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .chat-bubble-text {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .chat-bubble-close {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background-color: #868e96;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-content">
+            <h1>The Republic</h1>
+            <h2>Book I</h2>
+            <p>I went down yesterday to the Piraeus with Glaucon the son of Ariston, that I might offer up my prayers to the goddess; and also because I wanted to see in what manner they would celebrate the festival, which was a new thing. I was delighted with the procession of the inhabitants; but that of the Thracians was equally, if not more, beautiful. When we had finished our prayers and viewed the spectacle, we turned in the direction of the city; and at that instant Polemarchus the son of Cephalus chanced to catch sight of us from a distance as we were starting on our way home, and told his servant to run and bid us wait for him. The servant took hold of me by the cloak behind, and said: Polemarchus desires you to wait.</p>
+            <p>I turned round, and asked him where his master was.</p>
+            <p>There he is, said the youth, coming after you, if you will only wait.</p>
+            <p>Certainly we will, said Glaucon; and in a few minutes Polemarchus appeared, and with him Adeimantus, Glaucon's brother, Niceratus the son of Nicias, and several others who had been at the procession.</p>
+        </div>
+        
+        <div class="ai-button-container">
+            <button class="ai-button" id="ai-button">AI</button>
+        </div>
+        
+        <div class="overlay" id="overlay"></div>
+        
+        <div class="chat-bubble" id="chat-bubble">
+            <div class="chat-bubble-close" id="bubble-close">×</div>
+            <p class="chat-bubble-text">How can I help with your reading? Tap for AI features.</p>
+        </div>
+        
+        <div class="chat-container" id="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">AI Reading Assistant</div>
+                <div class="chat-close" id="chat-close">×</div>
+            </div>
+            <div class="chat-actions">
+                <div class="chat-action" id="summarize">
+                    <div class="chat-action-icon summarize">📝</div>
+                    <div class="chat-action-text">Summarize this chapter</div>
+                </div>
+                <div class="chat-action" id="chat">
+                    <div class="chat-action-icon chat">💬</div>
+                    <div class="chat-action-text">Chat about this chapter</div>
+                </div>
+                <div class="chat-action" id="explain">
+                    <div class="chat-action-icon explain">🔍</div>
+                    <div class="chat-action-text">Explain key concepts</div>
+                </div>
+                <div class="chat-action" id="terms">
+                    <div class="chat-action-icon terms">📚</div>
+                    <div class="chat-action-text">Define difficult terms</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const aiButton = document.getElementById('ai-button');
+        const chatContainer = document.getElementById('chat-container');
+        const chatClose = document.getElementById('chat-close');
+        const overlay = document.getElementById('overlay');
+        const chatBubble = document.getElementById('chat-bubble');
+        const bubbleClose = document.getElementById('bubble-close');
+        
+        // Show chat bubble after a delay (simulating a proactive suggestion)
+        setTimeout(() => {
+            chatBubble.classList.add('active');
+        }, 2000);
+        
+        // Close bubble
+        bubbleClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            chatBubble.classList.remove('active');
+        });
+        
+        // Open chat menu when clicking bubble
+        chatBubble.addEventListener('click', () => {
+            chatBubble.classList.remove('active');
+            chatContainer.classList.add('active');
+            overlay.classList.add('active');
+        });
+        
+        // Toggle chat menu
+        aiButton.addEventListener('click', () => {
+            chatBubble.classList.remove('active');
+            chatContainer.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+        
+        // Close chat menu
+        chatClose.addEventListener('click', () => {
+            chatContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        // Close when clicking overlay
+        overlay.addEventListener('click', () => {
+            chatContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        // Handle action clicks
+        document.getElementById('summarize').addEventListener('click', () => {
+            alert('Summarize Chapter clicked');
+            chatContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        document.getElementById('chat').addEventListener('click', () => {
+            alert('Chat about Chapter clicked');
+            chatContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        document.getElementById('explain').addEventListener('click', () => {
+            alert('Explain Concepts clicked');
+            chatContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        
+        document.getElementById('terms').addEventListener('click', () => {
+            alert('Define Terms clicked');
+            chatContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    </script>
+</body>
+</html> 

@@ -40,6 +40,9 @@ export function handleReaderMode(readerMode: string) {
 export function handleNavLock(isNavLocked: boolean) {
   return { type: "HANDLE_NAV_LOCK", payload: isNavLocked };
 }
+export function handleAIDrawerOpen(isOpen: boolean = true) {
+  return { type: "HANDLE_AI_DRAWER_OPEN", payload: isOpen };
+}
 export function handleFetchNotes() {
   return (dispatch: (arg0: { type: string; payload: NoteModel[] }) => void) => {
     DatabaseService.getAllRecords("notes").then((value) => {

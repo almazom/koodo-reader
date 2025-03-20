@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Button - Fullscreen Modal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        
+        .reader-container {
+            position: relative;
+            width: 320px; /* Mobile width */
+            height: 600px; /* Mobile height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .reader-content {
+            height: 100%;
+            overflow-y: auto;
+            line-height: 1.6;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .ai-button-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .ai-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4c6ef5;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+            z-index: 1001;
+        }
+        
+        .ai-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(76, 110, 245, 0.4);
+        }
+        
+        .ai-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1100;
+        }
+        
+        .ai-modal.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .ai-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+        
+        .ai-modal-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .ai-modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #868e96;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .ai-modal-close:hover {
+            background-color: #e9ecef;
+        }
+        
+        .ai-modal-content {
+            padding: 20px;
+            max-height: calc(100% - 70px);
+            overflow-y: auto;
+        }
+        
+        .ai-feature-section {
+            margin-bottom: 25px;
+        }
+        
+        .ai-feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .ai-feature-items {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .ai-feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            height: 120px;
+        }
+        
+        .ai-feature-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .ai-feature-item i {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .ai-feature-item.summarize i {
+            color: #4263eb;
+        }
+        
+        .ai-feature-item.chat i {
+            color: #ae3ec9;
+        }
+        
+        .ai-feature-item.explain i {
+            color: #f03e3e;
+        }
+        
+        .ai-feature-item.terms i {
+            color: #1c7ed6;
+        }
+        
+        .ai-feature-item span {
+            font-size: 14px;
+        }
+        
+        .ai-feature-item p {
+            font-size: 12px;
+            color: #868e96;
+            margin: 5px 0 0 0;
+        }
+        
+        .ai-feature-additional {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .ai-feature-chip {
+            background-color: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .ai-feature-chip:hover {
+            background-color: #dee2e6;
+        }
+        
+        .ai-feature-chip i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="reader-container">
+        <div class="reader-content">
+            <h1>The Republic</h1>
+            <h2>Book I</h2>
+            <p>I went down yesterday to the Piraeus with Glaucon the son of Ariston, that I might offer up my prayers to the goddess; and also because I wanted to see in what manner they would celebrate the festival, which was a new thing. I was delighted with the procession of the inhabitants; but that of the Thracians was equally, if not more, beautiful. When we had finished our prayers and viewed the spectacle, we turned in the direction of the city; and at that instant Polemarchus the son of Cephalus chanced to catch sight of us from a distance as we were starting on our way home, and told his servant to run and bid us wait for him. The servant took hold of me by the cloak behind, and said: Polemarchus desires you to wait.</p>
+            <p>I turned round, and asked him where his master was.</p>
+            <p>There he is, said the youth, coming after you, if you will only wait.</p>
+            <p>Certainly we will, said Glaucon; and in a few minutes Polemarchus appeared, and with him Adeimantus, Glaucon's brother, Niceratus the son of Nicias, and several others who had been at the procession.</p>
+        </div>
+        
+        <div class="ai-button-container">
+            <button class="ai-button" id="ai-button">AI</button>
+        </div>
+        
+        <div class="ai-modal" id="ai-modal">
+            <div class="ai-modal-header">
+                <div class="ai-modal-title">AI Assistant</div>
+                <div class="ai-modal-close" id="ai-modal-close">×</div>
+            </div>
+            <div class="ai-modal-content">
+                <div class="ai-feature-section">
+                    <div class="ai-feature-title">Chapter Actions</div>
+                    <div class="ai-feature-items">
+                        <div class="ai-feature-item summarize">
+                            <i>📝</i>
+                            <span>Summarize Chapter</span>
+                            <p>Get key points only</p>
+                        </div>
+                        <div class="ai-feature-item chat">
+                            <i>💬</i>
+                            <span>Chat about Chapter</span>
+                            <p>Ask questions about content</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ai-feature-section">
+                    <div class="ai-feature-title">Learning Tools</div>
+                    <div class="ai-feature-items">
+                        <div class="ai-feature-item explain">
+                            <i>🔍</i>
+                            <span>Explain Concepts</span>
+                            <p>Deep dive into ideas</p>
+                        </div>
+                        <div class="ai-feature-item terms">
+                            <i>📚</i>
+                            <span>Terms Explanation</span>
+                            <p>Define difficult terms</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ai-feature-section">
+                    <div class="ai-feature-title">More Options</div>
+                    <div class="ai-feature-additional">
+                        <div class="ai-feature-chip">
+                            <i>🎙️</i>
+                            <span>Create podcast</span>
+                        </div>
+                        <div class="ai-feature-chip">
+                            <i>🧠</i>
+                            <span>Study guide</span>
+                        </div>
+                        <div class="ai-feature-chip">
+                            <i>🔖</i>
+                            <span>Book insights</span>
+                        </div>
+                        <div class="ai-feature-chip">
+                            <i>⚙️</i>
+                            <span>AI settings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const aiButton = document.getElementById('ai-button');
+        const aiModal = document.getElementById('ai-modal');
+        const aiModalClose = document.getElementById('ai-modal-close');
+        
+        // Open modal
+        aiButton.addEventListener('click', () => {
+            aiModal.classList.add('active');
+        });
+        
+        // Close modal
+        aiModalClose.addEventListener('click', () => {
+            aiModal.classList.remove('active');
+        });
+        
+        // Handle feature item clicks
+        const featureItems = document.querySelectorAll('.ai-feature-item');
+        featureItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (item.classList.contains('summarize')) {
+                    alert('Summarize Chapter clicked');
+                } else if (item.classList.contains('chat')) {
+                    alert('Chat about Chapter clicked');
+                } else if (item.classList.contains('explain')) {
+                    alert('Explain Concepts clicked');
+                } else if (item.classList.contains('terms')) {
+                    alert('Terms Explanation clicked');
+                }
+                
+                // Close modal after selection
+                aiModal.classList.remove('active');
+            });
+        });
+        
+        // Handle feature chip clicks
+        const featureChips = document.querySelectorAll('.ai-feature-chip');
+        featureChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                alert(`${chip.querySelector('span').textContent} clicked`);
+                // Keep modal open for these secondary options
+            });
+        });
+        
+        // Close modal when swiping down from top area
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        aiModal.addEventListener('touchstart', (e) => {
+            const touchArea = aiModal.querySelector('.ai-modal-header');
+            if (touchArea.contains(e.target)) {
+                touchStartY = e.changedTouches[0].screenY;
+            }
+        }, false);
+        
+        aiModal.addEventListener('touchend', (e) => {
+            const touchArea = aiModal.querySelector('.ai-modal-header');
+            if (touchArea.contains(e.target)) {
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipe();
+            }
+        }, false);
+        
+        function handleSwipe() {
+            if (touchEndY > touchStartY + 70) {
+                // Swiped down significantly from header
+                aiModal.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html> 

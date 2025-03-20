@@ -7,6 +7,7 @@
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import dotenv from 'dotenv';
+import { MinimaxClient } from '../clients/minimax-client';
 
 // Load environment variables
 dotenv.config();
@@ -60,6 +61,98 @@ interface CompletionResponse {
     status_msg: string;
   };
 }
+
+/**
+ * MinimaxClient Tests
+ */
+
+// Mock axios
+jest.mock('axios', () => ({
+  post: jest.fn()
+}));
+
+describe('MinimaxClient', () => {
+  let client: MinimaxClient;
+  const apiKey = 'test-api-key';
+  const mockSuccessResponse = {
+    data: {
+      choices: [
+        {
+          message: {
+            content: 'Test response content'
+          }
+        }
+      ],
+      usage: {
+        total_tokens: 100,
+        prompt_tokens: 50,
+        completion_tokens: 50
+      }
+    },
+    status: 200
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    client = new MinimaxClient({
+      apiKey,
+      model: 'MiniMax-Text-01',
+      retryPolicy: {
+        maxRetries: 2,
+        initialDelayMs: 100
+      }
+    });
+  });
+
+  it('should create a client with default configuration', () => {
+    const defaultClient = new MinimaxClient({ apiKey });
+    expect(defaultClient).toBeDefined();
+    expect(defaultClient['apiKey']).toBe(apiKey);
+    expect(defaultClient['model']).toBe('MiniMax-Text-01'); // Default model
+  });
+
+  it('should send chat completion requests successfully', async () => {
+    // Mock successful response
+    (axios.post as jest.Mock).mockResolvedValue(mockSuccessResponse);
+
+    // Execute request
+    const messages = [
+      { role: 'system', content: 'You are a helpful assistant' },
+      { role: 'user', content: 'Hello, world!' }
+    ];
+    
+    const result = await client.createChatCompletion(messages);
+    
+    // Verify response handling
+    expect(result).toBeDefined();
+    expect(result.text).toBe('Test response content');
+    expect(result.tokenUsage.total).toBe(100);
+    
+    // Verify request format
+    expect(axios.post).toHaveBeenCalledTimes(1);
+    const [url, data, config] = (axios.post as jest.Mock).mock.calls[0];
+    expect(url).toBe('https://api.minimax.chat/v1/text/chatcompletion_pro');
+    expect(data.model).toBe('MiniMax-Text-01');
+    expect(data.messages).toEqual(messages);
+    expect(config.headers.Authorization).toBe('Bearer test-api-key');
+  });
+
+  it('should handle API errors gracefully', async () => {
+    // Mock error response
+    const errorResponse = new Error('API Error');
+    (axios.post as jest.Mock).mockRejectedValue(errorResponse);
+    
+    // Execute request
+    const messages = [
+      { role: 'system', content: 'You are a helpful assistant' },
+      { role: 'user', content: 'Hello, world!' }
+    ];
+    
+    // Verify error handling
+    await expect(client.createChatCompletion(messages)).rejects.toThrow('API Error');
+    expect(axios.post).toHaveBeenCalledTimes(3); // Initial + 2 retries
+  });
+});
 
 /**
  * MinimaxClient implements a strongly-typed API client for Minimax API

@@ -18,6 +18,7 @@ const initState = {
   htmlBook: null,
   readerMode: "double",
   isNavLocked: ConfigService.getReaderConfig("isNavLocked") === "yes",
+  isAIDrawerOpen: false,
 };
 export function reader(
   state = initState,
@@ -90,6 +91,11 @@ export function reader(
       return {
         ...state,
         readerMode: action.payload,
+      };
+    case "HANDLE_AI_DRAWER_OPEN":
+      return {
+        ...state,
+        isAIDrawerOpen: action.payload,
       };
     default:
       return state;
