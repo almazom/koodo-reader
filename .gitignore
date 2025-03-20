@@ -45,3 +45,21 @@ src/services/llm/config/api-keys.ts
 package-lock.json.bak
 .env.docker
 /app
+
+# Android build files
+/android
+/ios
+/capacitor.config.json
+/capacitor.config.json.backup
+
+# Build artifacts
+/dist
+/.gradle
+*.apk
+*.aab
+
+# IDE specific files
+.idea/
+*.iml
+*.swp
+*~
