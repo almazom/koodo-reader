@@ -39,3 +39,9 @@ kookit-extra-browser.mjs
 
 # LLM API keys - never commit these!
 src/services/llm/config/api-keys.ts
+
+# Koodo Reader .gitignore file
+/logs
+package-lock.json.bak
+.env.docker
+/app
