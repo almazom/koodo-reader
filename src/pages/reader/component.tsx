@@ -472,24 +472,18 @@ class Reader extends React.Component<ReaderProps, ReaderState> {
         </div>
 
         {/* AI Panel Overlay */}
-        {this.props.isAIDrawerOpen && (
-          <div 
-            className="ai-panel-overlay" 
-            onClick={() => this.props.handleOpenAIDrawer(false)}
-          />
-        )}
+        <div 
+          className={`ai-panel-overlay ${this.props.isAIDrawerOpen ? 'active' : ''}`}
+          onClick={() => this.props.handleOpenAIDrawer(false)}
+        />
 
         {/* AI Panel */}
         <div
           className="ai-panel-container"
-          style={
-            this.props.isAIDrawerOpen
-              ? { marginLeft: this.props.isNavLocked ? 150 : 0 }
-              : {
-                  transform: "translateX(309px)",
-                  marginLeft: this.props.isNavLocked ? 150 : 0,
-                }
-          }
+          style={{
+            transform: this.props.isAIDrawerOpen ? 'translateX(0)' : 'translateX(100%)',
+            marginLeft: this.props.isNavLocked ? 150 : 0
+          }}
         >
           <AIPanel />
         </div>

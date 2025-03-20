@@ -9,6 +9,8 @@ import store from "./store";
 import Router from "./router/index";
 import StyleUtil from "./utils/reader/styleUtil";
 import { initSystemFont, initTheme } from "./utils/reader/launchUtil";
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
 initTheme();
 initSystemFont();
 ReactDOM.render(
@@ -18,3 +20,7 @@ ReactDOM.render(
   document.getElementById("root")
 );
 StyleUtil.applyTheme();
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below.
+serviceWorkerRegistration.register();
